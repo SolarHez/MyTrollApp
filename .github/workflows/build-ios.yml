@@ -28,21 +28,38 @@ jobs:
       - name: Build and Package
         run: |
           cd ios
-          # 先清理一下旧构建
-          xcodebuild clean -workspace MyTrollApp.xcworkspace -scheme MyTrollApp
-
-          # 构建 Archive
+          # 1. 明确构建路径
           xcodebuild -workspace MyTrollApp.xcworkspace \
                      -scheme MyTrollApp \
-                     -sdk iphoneos \
                      -configuration Release \
+                     -sdk iphoneos \
                      CODE_SIGNING_ALLOWED=NO \
                      CODE_SIGNING_REQUIRED=NO \
-                     -archivePath build/MyTrollApp.xcarchive archive
+                     archive -archivePath ./build/MyTrollApp.xcarchive
 
-          # 检查目录是否存在
-          if [ ! -d "build/MyTrollApp.xcarchive/Products/Applications" ]; then
-            echo "Build failed! Applications folder not found."
+          # 2. 更加健壮地查找 .app 文件
+          # 我们使用 find 命令动态寻找，而不是硬编码目录
+          APP_PATH=$(find ./build/MyTrollApp.xcarchive/Products/Applications -maxdepth 1 -name "*.app" | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "错误：未在构建产物中找到 .app 文件！"
+            exit 1
+          fi
+
+          echo "找到 App: $APP_PATH"
+
+          # 3. 准备 Payload 目录 (巨魔商店标准格式)
+          mkdir -p Payload
+          cp -r "$APP_PATH" Payload/
+
+          # 4. 打包
+          zip -qr MyTrollApp.ipa Payload/
+
+          # 5. 确保 IPA 存在
+          if [ -f "MyTrollApp.ipa" ]; then
+            echo "IPA 打包成功"
+          else
+            echo "IPA 打包失败"
             exit 1
           fi
 
