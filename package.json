@@ -1,5 +1,5 @@
 {
-  "name": "MyTrollApp",
+  "name": "my-troll-app",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,13 +7,16 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "windows": "npx @react-native-community/cli run-windows",
+    "test:windows": "jest --config jest.config.windows.js"
   },
   "dependencies": {
+    "@react-native/new-app-screen": "0.85.3",
     "react": "19.2.3",
     "react-native": "0.85.3",
-    "@react-native/new-app-screen": "0.85.3",
-    "react-native-safe-area-context": "^5.5.2"
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-windows": "^0.82.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -34,9 +37,18 @@
     "jest": "^29.6.3",
     "prettier": "2.8.8",
     "react-test-renderer": "19.2.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@rnx-kit/jest-preset": "^0.1.17"
   },
   "engines": {
     "node": ">= 22.11.0"
+  },
+  "packageManager": "pnpm@10.33.3+sha512.a19744364a7e248b92657a4ca5973f9354d21caf982579674b1c539f32c7420c47138ad8b1254df07aba9bc782d9b3029e3db34d5dbff974326eb74dac8ff489",
+  "react-native-windows": {
+    "init-windows": {
+      "name": "MyTrollApp",
+      "namespace": "MyTrollApp",
+      "template": "cpp-app"
+    }
   }
 }

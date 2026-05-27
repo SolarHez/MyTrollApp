@@ -1,0 +1,58 @@
+name: Release # 工作流的名称，会在 GitHub Actions 页面显示
+on: # 定义触发规则
+  workflow_dispatch:
+  push: # 当代码被推送时触发
+    tags: # 这里限定了只有推送“标签（Tag）”时才执行
+      - 'v*' # 匹配以 v 开头的标签（例如 v0.1.0），忽略普通代码推送
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm # 步骤3：专门安装 pnpm 管理器
+        uses: pnpm/action-setup@v4 # 使用社区提供的 pnpm 安装插件
+
+      - name: Install Dependencies
+        run: |
+          pnpm install
+          cd ios
+          pod install
+          cd ..
+
+      - name: Build and Package
+        run: |
+          cd ios
+          # 先清理一下旧构建
+          xcodebuild clean -workspace MyTrollApp.xcworkspace -scheme MyTrollApp
+
+          # 构建 Archive
+          xcodebuild -workspace MyTrollApp.xcworkspace \
+                     -scheme MyTrollApp \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     -archivePath build/MyTrollApp.xcarchive archive
+
+          # 检查目录是否存在
+          if [ ! -d "build/MyTrollApp.xcarchive/Products/Applications" ]; then
+            echo "Build failed! Applications folder not found."
+            exit 1
+          fi
+
+          mkdir -p Payload
+          cp -r build/MyTrollApp.xcarchive/Products/Applications/*.app Payload/
+          zip -qr MyTrollApp.ipa Payload/
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyTrollApp-ipa
+          path: ios/MyTrollApp.ipa
