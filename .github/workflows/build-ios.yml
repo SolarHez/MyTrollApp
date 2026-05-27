@@ -14,14 +14,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.11.0'
 
       - name: Install pnpm # 步骤3：专门安装 pnpm 管理器
         uses: pnpm/action-setup@v4 # 使用社区提供的 pnpm 安装插件
 
       - name: Install Dependencies
         run: |
-          pnpm install
+          pnpm install --no-frozen-lockfile
           cd ios
           pod install
           cd ..
