@@ -2,8 +2,7 @@ name: Release # 工作流的名称，会在 GitHub Actions 页面显示
 on: # 定义触发规则
   workflow_dispatch:
   push: # 当代码被推送时触发
-    tags: # 这里限定了只有推送“标签（Tag）”时才执行
-      - 'v*' # 匹配以 v 开头的标签（例如 v0.1.0），忽略普通代码推送
+
 jobs:
   build:
     runs-on: macos-latest
